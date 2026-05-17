@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>THE NURSE (PVT) LTD | Anthropometric Estimator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0B1F6B;
+  --royal:#1A3FBF;
+  --sky:#3B82F6;
+  --ice:#EEF4FF;
+  --glass:rgba(255,255,255,0.72);
+  --border:rgba(26,63,191,0.13);
+  --green-d:#065F46;
+  --green-m:#059669;
+  --green-l:#ECFDF5;
+  --amber:#D97706;
+  --red:#DC2626;
+  --slate:#64748B;
+  --muted:#94A3B8;
+  --text:#1E293B;
+  --surface:#F8FAFF;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+html,body{
+  height:100%;
+  font-family:'DM Sans',sans-serif;
+  font-size:16px;
+  color:var(--text);
+  background:var(--surface);
+  overflow:hidden;
+}
+
+/* ════════ LAYOUT ════════ */
+.app{
+  display:grid;
+  grid-template-rows:auto 1fr;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* ════════ HEADER ════════ */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 32px;
+  height:72px;
+  background:linear-gradient(105deg,var(--navy) 0%,var(--royal) 60%,#0891B2 100%);
+  box-shadow:0 4px 24px rgba(11,31,107,0.28);
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+}
+header::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 140% at 80% 50%,rgba(255,255,255,0.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hdr-brand{display:flex;align-items:center;gap:16px;}
+.hdr-logo{
+  width:44px;height:44px;object-fit:contain;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,0.25));
+}
+.hdr-name{
+  font-family:'DM Serif Display',serif;
+  font-size:1.55rem;color:#fff;line-height:1;letter-spacing:-0.2px;
+}
+.hdr-name small{
+  display:block;font-family:'DM Sans',sans-serif;
+  font-size:0.62rem;font-weight:600;letter-spacing:0.18em;
+  color:#93C5FD;text-transform:uppercase;margin-top:2px;
+}
+.hdr-desc{
+  font-size:0.75rem;color:#BFDBFE;
+  max-width:380px;line-height:1.5;font-weight:400;
+  border-left:1px solid rgba(255,255,255,0.2);
+  padding-left:20px;margin-left:4px;
+}
+
+/* ════════ BODY GRID ════════ */
+.body{
+  display:grid;
+  grid-template-columns:380px 1fr;
+  overflow:hidden;
+  gap:0;
+}
+
+/* ════════ LEFT PANEL ════════ */
+.left{
+  background:#fff;
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  padding:0;
+}
+.left::-webkit-scrollbar{width:5px;}
+.left::-webkit-scrollbar-track{background:transparent;}
+.left::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+/* Mode tabs */
+.mode-tabs{
+  display:grid;grid-template-columns:1fr 1fr;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.mode-tab{
+  padding:14px 12px;text-align:center;cursor:pointer;
+  font-size:12px;font-weight:700;letter-spacing:0.04em;
+  color:var(--muted);border:none;background:transparent;
+  position:relative;transition:color .2s;
+}
+.mode-tab::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:transparent;border-radius:3px 3px 0 0;transition:background .2s;
+}
+.mode-tab.active-std{color:var(--royal);}
+.mode-tab.active-std::after{background:var(--royal);}
+.mode-tab.active-lk{color:var(--green-d);}
+.mode-tab.active-lk::after{background:var(--green-m);}
+.mode-tab .tab-icon{font-size:16px;display:block;margin-bottom:3px;}
+
+/* Form sections */
+.form-section{
+  padding:18px 22px;
+  border-bottom:1px solid #F1F5F9;
+}
+.section-label{
+  font-size:10px;font-weight:800;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--muted);
+  margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:#F1F5F9;}
+
+/* Sex toggle */
+.sex-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sex-btn{
+  border:2px solid #E2E8F0;border-radius:12px;background:#fff;
+  padding:10px 8px;text-align:center;cursor:pointer;transition:all .18s;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.sex-btn .sx-icon{font-size:1.5rem;}
+.sex-btn .sx-lbl{font-size:11px;font-weight:700;color:#94A3B8;}
+.sex-btn.sel-m{border-color:var(--royal);background:#EFF6FF;}
+.sex-btn.sel-m .sx-lbl{color:var(--royal);}
+.sex-btn.sel-f{border-color:#DB2777;background:#FDF2F8;}
+.sex-btn.sel-f .sx-lbl{color:#DB2777;}
+
+/* Field row */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field-row.single{grid-template-columns:1fr;}
+.field-group{display:flex;flex-direction:column;gap:4px;}
+.field-label{
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:var(--muted);
+  line-height:1.4;
+}
+.field-input{
+  border:1.5px solid #E2E8F0;border-radius:10px;
+  padding:9px 12px;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:500;color:var(--navy);
+  background:#fff;outline:none;width:100%;
+  transition:border-color .18s,box-shadow .18s;
+}
+.field-input:focus{border-color:var(--sky);box-shadow:0 0 0 3px rgba(59,130,246,0.12);}
+.field-input.g:focus{border-color:var(--green-m);box-shadow:0 0 0 3px rgba(5,150,105,0.12);}
+.field-input::placeholder{color:#CBD5E1;}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+input[type=number]{-moz-appearance:textfield;}
+
+select.field-input{cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+  padding-right:32px;
+}
+
+/* Panel visibility */
+.input-panel{display:none;}
+.input-panel.active{display:block;}
+
+/* PDF button */
+.pdf-btn{
+  margin:16px 22px;padding:13px;border-radius:12px;border:none;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  color:#fff;
+}
+.pdf-btn.std-pdf{background:linear-gradient(135deg,var(--navy),var(--royal));}
+.pdf-btn.lk-pdf{background:linear-gradient(135deg,#052e16,var(--green-d));}
+.pdf-btn:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,0.2);}
+
+.disc-small{
+  margin:0 22px 18px;padding:10px 14px;
+  background:#FFFBEB;border:1px solid #FDE68A;
+  border-radius:10px;font-size:10.5px;color:#92400E;line-height:1.55;
+}
+
+/* ════════ RIGHT PANEL ════════ */
+.right{
+  background:var(--surface);
+  overflow-y:auto;
+  padding:24px 28px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.right::-webkit-scrollbar{width:5px;}
+.right::-webkit-scrollbar-track{background:transparent;}
+.right::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+/* Results header */
+.results-header{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.results-title{
+  font-family:'DM Serif Display',serif;
+  font-size:1.6rem;color:var(--navy);
+}
+.live-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:99px;
+  background:#EFF6FF;color:var(--royal);
+  font-size:10px;font-weight:700;letter-spacing:0.08em;
+}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--sky);animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.8);}}
+
+/* Hero metric cards */
+.hero-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.hero-card{
+  border-radius:18px;padding:20px 20px;
+  background:#fff;border:1px solid var(--border);
+  box-shadow:0 2px 12px rgba(11,31,107,0.05);
+  transition:box-shadow .2s,transform .2s;
+  position:relative;overflow:hidden;
+}
+.hero-card:hover{box-shadow:0 8px 30px rgba(11,31,107,0.1);transform:translateY(-2px);}
+.hero-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:18px 18px 0 0;
+}
+.hc-blue::before{background:linear-gradient(90deg,var(--navy),var(--sky));}
+.hc-teal::before{background:linear-gradient(90deg,#0891B2,#22D3EE);}
+.hc-green::before{background:linear-gradient(90deg,var(--green-d),var(--green-m));}
+.hc-amber::before{background:linear-gradient(90deg,#D97706,#FBBF24);}
+.hc-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.hc-value{
+  font-family:'DM Serif Display',serif;
+  font-size:2.4rem;color:var(--navy);line-height:1;margin-top:8px;
+}
+.hc-unit{font-size:11px;font-weight:600;color:var(--muted);margin-top:2px;}
+.hc-sub{margin-top:10px;}
+
+/* Risk badge */
+.risk-badge{
+  display:inline-block;padding:3px 10px;border-radius:99px;
+  font-size:10px;font-weight:800;letter-spacing:0.05em;
+}
+.rb-low{background:#DCFCE7;color:#166534;}
+.rb-mod{background:#FEF9C3;color:#854D0E;}
+.rb-high{background:#FEE2E2;color:#991B1B;}
+.rb-none{background:#F1F5F9;color:#64748B;}
+
+/* BMI section */
+.bmi-section{
+  background:#fff;border-radius:18px;padding:20px 22px;
+  border:1px solid var(--border);box-shadow:0 2px 12px rgba(11,31,107,0.05);
+}
+.bmi-section-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.bmi-zones{display:flex;gap:0;border-radius:99px;overflow:hidden;height:10px;margin-bottom:8px;position:relative;}
+.bz{flex:1;}
+.bz-under{background:#3B82F6;}
+.bz-normal{background:#22C55E;}
+.bz-over{background:#EAB308;}
+.bz-obese{background:#EF4444;}
+.bmi-marker{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:18px;height:18px;border-radius:50%;
+  background:#fff;border:3px solid var(--navy);
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  transition:left .4s cubic-bezier(.34,1.56,.64,1);
+  display:none;
+}
+.bmi-labels{display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);font-weight:600;margin-top:4px;}
+
+/* Equation / citation box */
+.info-box{
+  background:#fff;border-radius:18px;padding:20px 22px;
+  border:1px solid var(--border);box-shadow:0 2px 12px rgba(11,31,107,0.05);
+}
+.info-box-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.eq-mono{
+  font-family:'Courier New',monospace;font-size:11.5px;
+  background:#F8FAFC;border:1px solid #E2E8F0;
+  border-radius:10px;padding:12px 16px;color:#475569;line-height:1.85;
+}
+.cite-text{font-size:11px;color:#64748B;line-height:1.65;font-style:italic;margin-top:10px;}
+
+/* Nutrition risk full-width */
+.nutr-card{
+  background:#fff;border-radius:18px;padding:20px 22px;
+  border:1px solid var(--border);box-shadow:0 2px 12px rgba(11,31,107,0.05);
+  display:flex;align-items:center;gap:20px;
+}
+.nutr-icon{font-size:2.2rem;flex-shrink:0;}
+.nutr-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.nutr-value{font-size:1.1rem;font-weight:700;color:var(--navy);}
+.nutr-note{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
+
+/* Separator for info panels */
+.result-panel{display:none;}
+.result-panel.active{display:contents;}
+
+/* Edema note */
+.edema-note{
+  background:linear-gradient(135deg,#EFF6FF,#E0F2FE);
+  border:1px solid #BFDBFE;border-radius:12px;
+  padding:10px 14px;font-size:11px;color:#1E40AF;font-weight:500;
+  display:flex;align-items:center;gap:8px;
+}
+
+/* Responsive for very small screens */
+@media(max-width:900px){
+  body,html{overflow:auto;}
+  .body{grid-template-columns:1fr;overflow:visible;}
+  .hero-grid{grid-template-columns:1fr 1fr;}
+  .right{padding:16px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="hdr-brand">
+    <img class="hdr-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23fff' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='14' style='fill:%23fff'%3E🍀%3C/text%3E%3C/svg%3E" alt="Logo" onerror="this.style.display='none'"/>
+    <div>
+      <div class="hdr-name">THE NURSE <small>(PVT) LTD</small></div>
+    </div>
+    <div class="hdr-desc">Advanced anthropometric estimation for bedridden &amp; adult patients evidence-based clinical equations including Sri Lankan validated models.</div>
+  </div>
+</header>
+
+<div class="body">
+
+  <div class="left">
+
+    <div class="mode-tabs">
+      <button class="mode-tab active-std" id="btnStd" onclick="switchMode('std')">
+        <span class="tab-icon">🌐</span>Standard / General
+      </button>
+      <button class="mode-tab" id="btnLK" onclick="switchMode('lk')">
+        <span class="tab-icon">🇱🇰</span>Sri Lankan / Asian
+      </button>
+    </div>
+
+    <div class="input-panel active" id="panelStdIn">
+
+      <div class="form-section">
+        <div class="section-label">Patient</div>
+        <div class="sex-grid">
+          <div class="sex-btn sel-m" id="sMaleBtn" onclick="selectSex('std','male')">
+            <span class="sx-icon">👨</span><span class="sx-lbl">Male</span>
+          </div>
+          <div class="sex-btn" id="sFemaleBtn" onclick="selectSex('std','female')">
+            <span class="sx-icon">👩</span><span class="sx-lbl">Female</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="field-group">
+            <span class="field-label">Age (Years)</span>
+            <input class="field-input" type="number" id="sAge" placeholder="e.g. 45" min="18" max="110" oninput="calcStd()"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Anthropometric Measurements</div>
+        <div class="field-row" style="margin-bottom:10px;">
+          <div class="field-group">
+            <span class="field-label">Ulnar Length (cm)</span>
+            <input class="field-input" type="number" id="sUlna" placeholder="24.3" step="0.1" oninput="calcStd()"/>
+          </div>
+          <div class="field-group">
+            <span class="field-label">Knee Height (cm)</span>
+            <input class="field-input" type="number" id="sKnee" placeholder="50.0" step="0.1" oninput="calcStd()"/>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <span class="field-label">MUAC (cm)</span>
+            <input class="field-input" type="number" id="sMuac" placeholder="28.5" step="0.1" oninput="calcStd()"/>
+          </div>
+          <div class="field-group">
+            <span class="field-label">Calf Circ. (cm)</span>
+            <input class="field-input" type="number" id="sCalf" placeholder="34.0" step="0.1" oninput="calcStd()"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Oedema Correction</div>
+        <div class="field-group">
+          <span class="field-label">Oedema Status</span>
+          <select class="field-input" id="sEdema" onchange="calcStd()">
+            <option value="0">No Oedema</option>
+            <option value="-2">Mild (+1) · Subtract 2 kg</option>
+            <option value="-5">Moderate (+2) · Subtract 5 kg</option>
+            <option value="-10">Severe (+3) · Subtract 10 kg</option>
+          </select>
+        </div>
+        <div id="sEdemaNote" class="edema-note" style="margin-top:10px;display:none;">
+          ⚠️ Oedema correction applied to estimated weight.
+        </div>
+      </div>
+
+      <button class="pdf-btn std-pdf" onclick="downloadPDF('std')">📄 Download Clinical PDF Report</button>
+
+      <div class="disc-small">
+        ⚠️ <b>Disclaimer:</b> For clinical estimation only. Use alongside professional assessment. References: BAPEN MUST · Powell-Tuck &amp; Hennessy · Devine · WHO MUAC.
+      </div>
+    </div>
+
+    <div class="input-panel" id="panelLKIn">
+
+      <div class="form-section">
+        <div class="section-label">Patient Sex</div>
+        <div class="sex-grid">
+          <div class="sex-btn sel-m" id="lMaleBtn" onclick="selectSex('lk','male')">
+            <span class="sx-icon">👨</span><span class="sx-lbl">Male</span>
+          </div>
+          <div class="sex-btn" id="lFemaleBtn" onclick="selectSex('lk','female')">
+            <span class="sx-icon">👩</span><span class="sx-lbl">Female</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="lkMaleFields">
+        <div class="form-section">
+          <div class="section-label">Male Measurements (Herath 2023)</div>
+          <div class="field-row" style="margin-bottom:10px;">
+            <div class="field-group">
+              <span class="field-label">Mid-Arm Circumference (MAC) (cm)</span>
+              <input class="field-input g" type="number" id="lMac" placeholder="28.0" step="0.1" oninput="calcLK()"/>
+            </div>
+            <div class="field-group">
+              <span class="field-label">Abdominal Circumference (AC) (cm)</span>
+              <input class="field-input g" type="number" id="lAc" placeholder="88.0" step="0.1" oninput="calcLK()"/>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <span class="field-label">Tibial Length (TL) (cm)</span>
+              <input class="field-input g" type="number" id="lTl" placeholder="40.0" step="0.1" oninput="calcLK()"/>
+            </div>
+            <div class="field-group">
+              <span class="field-label">Triceps Skin-Fold Thickness (TST) (mm)</span>
+              <input class="field-input g" type="number" id="lTst" placeholder="12.0" step="0.1" oninput="calcLK()"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="lkFemaleFields" style="display:none;">
+        <div class="form-section">
+          <div class="section-label">Female Measurements (Herath 2023)</div>
+          <div class="field-row" style="margin-bottom:10px;">
+            <div class="field-group">
+              <span class="field-label">Mid-Arm Circumference (MAC) (cm)</span>
+              <input class="field-input g" type="number" id="lMacF" placeholder="26.0" step="0.1" oninput="calcLK()"/>
+            </div>
+            <div class="field-group">
+              <span class="field-label">Neck Circumference (NC) (cm)</span>
+              <input class="field-input g" type="number" id="lNc" placeholder="34.0" step="0.1" oninput="calcLK()"/>
+            </div>
+          </div>
+          <div class="field-row single">
+            <div class="field-group">
+              <span class="field-label">Chest Circumference (CC) (cm)</span>
+              <input class="field-input g" type="number" id="lCc" placeholder="86.0" step="0.1" oninput="calcLK()"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Oedema Correction</div>
+        <div class="field-group">
+          <span class="field-label">Oedema Status</span>
+          <select class="field-input g" id="lEdema" onchange="calcLK()">
+            <option value="0">No Oedema</option>
+            <option value="-2">Mild (+1) · Subtract 2 kg</option>
+            <option value="-5">Moderate (+2) · Subtract 5 kg</option>
+            <option value="-10">Severe (+3) · Subtract 10 kg</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section" style="background:#F0FDF4;border-radius:10px;margin:0 10px 0;border:1px solid #BBF7D0;">
+        <p style="font-size:10.5px;color:#166534;line-height:1.6;">
+          <b>Note:</b> Age was not a statistically significant predictor in either Sri Lankan model. Male model R²=0.824, Female R²=0.747 (Herath et al., 2023).
+        </p>
+      </div>
+      <div style="height:10px;"></div>
+
+      <button class="pdf-btn lk-pdf" onclick="downloadPDF('lk')">📄 Download Clinical PDF Report</button>
+
+      <div class="disc-small" style="background:#F0FDF4;border-color:#BBF7D0;color:#166534;">
+        ⚠️ Validated in Sri Lankan adult inpatients. Use for adult Sri Lankan / Asian-origin patients ≥18 years. Clinical validation required.
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+
+    <div class="results-header">
+      <div class="results-title">Clinical Results</div>
+      <div class="live-badge"><div class="ldot"></div>LIVE CALCULATION</div>
+    </div>
+
+    <div class="result-panel active" id="panelStdRes">
+
+      <div class="hero-grid">
+        <div class="hero-card hc-blue">
+          <div class="hc-label">Estimated Height</div>
+          <div class="hc-value" id="sHeightCm">—</div>
+          <div class="hc-unit">centimetres</div>
+          <div class="hc-sub" style="font-size:12px;color:var(--muted);font-weight:500;" id="sHeightFt">—</div>
+        </div>
+        <div class="hero-card hc-teal">
+          <div class="hc-label">Estimated Weight</div>
+          <div class="hc-value" id="sWeightKg">—</div>
+          <div class="hc-unit">kilograms</div>
+          <div class="hc-sub" id="sEdemaCorr" style="font-size:11px;color:var(--muted);font-weight:500;">Oedema adj: ±0 kg</div>
+        </div>
+        <div class="hero-card hc-green">
+          <div class="hc-label">Estimated BMI</div>
+          <div class="hc-value" id="sBmi">—</div>
+          <div class="hc-unit">kg/m²</div>
+          <div class="hc-sub"><span class="risk-badge rb-none" id="sBmiStatus">—</span></div>
+        </div>
+      </div>
+
+      <div class="bmi-section">
+        <div class="bmi-section-title">BMI Classification Spectrum</div>
+        <div class="bmi-zones" id="sBmiBar">
+          <div class="bz bz-under"></div>
+          <div class="bz bz-normal" style="flex:1.5;"></div>
+          <div class="bz bz-over" style="flex:1.5;"></div>
+          <div class="bz bz-obese" style="flex:2;"></div>
+          <div class="bmi-marker" id="sBmiMarker"></div>
+        </div>
+        <div class="bmi-labels">
+          <span>Underweight &lt;18.5</span>
+          <span>Normal 18.5–25</span>
+          <span>Overweight 25–30</span>
+          <span>Obese ≥30</span>
+        </div>
+      </div>
+
+      <div class="nutr-card">
+        <div class="nutr-icon" id="sNutrIcon">⬜</div>
+        <div>
+          <div class="nutr-label">Nutrition Risk Assessment</div>
+          <div class="nutr-value" id="sNutrRisk">Enter measurements to calculate</div>
+          <div class="nutr-note">Based on BMI + MUAC thresholds (WHO / BAPEN criteria)</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-box-title">📐 Clinical Equations Applied</div>
+        <div class="eq-mono">
+          <b>Height from Ulna (≥65y M):</b> 3.06×UL + 67.5<br>
+          <b>Height from Ulna (&lt;65y M):</b> 3.60×UL + 54.9<br>
+          <b>Height from Ulna (≥65y F):</b> 3.43×UL + 57.8<br>
+          <b>Height from Ulna (&lt;65y F):</b> 3.56×UL + 56.9<br>
+          <b>Height from Knee (M):</b> 64.19 − 0.04×Age + 2.02×KH<br>
+          <b>Height from Knee (F):</b> 84.88 − 0.24×Age + 1.83×KH<br>
+          <b>Weight (full):</b> 0.98×MUAC + 1.27×CC + 0.40×H − 62.35
+        </div>
+        <div class="cite-text">References: BAPEN MUST guidelines · Powell-Tuck &amp; Hennessy (1985) · Chumlea knee-height equations · WHO MUAC thresholds</div>
+      </div>
+
+    </div>
+
+    <div class="result-panel" id="panelLKRes">
+
+      <div class="hero-grid">
+        <div class="hero-card hc-green">
+          <div class="hc-label">Estimated ABW</div>
+          <div class="hc-value" id="lAbw">—</div>
+          <div class="hc-unit">kilograms</div>
+          <div class="hc-sub" style="font-size:11px;color:var(--green-m);font-weight:600;">Actual Body Weight</div>
+        </div>
+        <div class="hero-card hc-teal">
+          <div class="hc-label">Adjusted ABW</div>
+          <div class="hc-value" id="lAbwAdj">—</div>
+          <div class="hc-unit">kilograms</div>
+          <div class="hc-sub" style="font-size:11px;color:var(--muted);font-weight:500;">With oedema correction</div>
+        </div>
+        <div class="hero-card hc-amber">
+          <div class="hc-label">Model Used</div>
+          <div class="hc-value" style="font-size:1.2rem;" id="lModelShort">—</div>
+          <div class="hc-unit" id="lModel" style="font-size:10.5px;line-height:1.5;">—</div>
+        </div>
+      </div>
+
+      <div class="nutr-card">
+        <div class="nutr-icon" id="lNutrIcon">⬜</div>
+        <div>
+          <div class="nutr-label">Nutrition Risk Assessment</div>
+          <div class="nutr-value" id="lNutrRisk">Enter measurements to calculate</div>
+          <div class="nutr-note">Based on MAC thresholds — Sri Lankan / Asian population norms</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-box-title">📐 Sri Lankan Validated Equations (Herath et al. 2023)</div>
+        <div class="eq-mono">
+          <b>Male ABW:</b> −38.21 + 1.29×MAC + 0.49×AC + 0.565×TL + 0.391×TST<br>
+          <b>Female ABW:</b> −20.128 + 0.968×MAC + 0.273×NC + 0.407×CC
+        </div>
+        <div class="cite-text">
+          Herath HMMTB, Wijayawardhana KWSM, Wickramarachchi UI, et al. Estimation of body weight using anthropometric parameters in Sri Lankan hospitalized adult patients. <b>PLoS One.</b> 2023;18(9):e0290895. PMID: 37656692.
+        </div>
+      </div>
+
+    </div>
+
+  </div></div></div><script>
+let mode='std', sSex='male', lSex='male';
+
+function switchMode(m){
+  mode=m;
+  document.getElementById('btnStd').className='mode-tab'+(m==='std'?' active-std':'');
+  document.getElementById('btnLK').className='mode-tab'+(m==='lk'?' active-lk':'');
+  document.getElementById('panelStdIn').classList.toggle('active',m==='std');
+  document.getElementById('panelLKIn').classList.toggle('active',m==='lk');
+  document.getElementById('panelStdRes').classList.toggle('active',m==='std');
+  document.getElementById('panelLKRes').classList.toggle('active',m==='lk');
+  if(m==='lk') calcLK(); else calcStd();
+}
+
+function selectSex(scope,sex){
+  if(scope==='std'){
+    sSex=sex;
+    document.getElementById('sMaleBtn').className='sex-btn'+(sex==='male'?' sel-m':'');
+    document.getElementById('sFemaleBtn').className='sex-btn'+(sex==='female'?' sel-f':'');
+    calcStd();
+  } else {
+    lSex=sex;
+    document.getElementById('lMaleBtn').className='sex-btn'+(sex==='male'?' sel-m':'');
+    document.getElementById('lFemaleBtn').className='sex-btn'+(sex==='female'?' sel-f':'');
+    document.getElementById('lkMaleFields').style.display=sex==='male'?'':'none';
+    document.getElementById('lkFemaleFields').style.display=sex==='female'?'':'none';
+    calcLK();
+  }
+}
+
+function calcStd(){
+  const ulna=parseFloat(document.getElementById('sUlna').value)||0;
+  const muac=parseFloat(document.getElementById('sMuac').value)||0;
+  const calf=parseFloat(document.getElementById('sCalf').value)||0;
+  const knee=parseFloat(document.getElementById('sKnee').value)||0;
+  const edAdj=parseFloat(document.getElementById('sEdema').value)||0;
+  const age=parseFloat(document.getElementById('sAge').value)||0;
+  const o65=age>=65;
+
+  document.getElementById('sEdemaNote').style.display=edAdj!==0?'flex':'none';
+
+  let h=0;
+  if(ulna>0){
+    if(sSex==='male') h=o65?3.06*ulna+67.5:3.60*ulna+54.9;
+    else              h=o65?3.43*ulna+57.8:3.56*ulna+56.9;
+  }
+  if(knee>0){
+    const kh=sSex==='male'
+      ?64.19-0.04*(age||70)+2.02*knee
+      :84.88-0.24*(age||70)+1.83*knee;
+    h=h>0?(h+kh)/2:kh;
+  }
+
+  let w=0;
+  if(muac>0&&calf>0&&h>0) {
+    w=0.98*muac+1.27*calf+0.40*h-62.35;
+  } else if(muac>0 && calf===0 && h===0) {
+    w=sSex==='male'?muac*4-50:muac*3.5-40;
+  }
+  
+  if(w>0) w+=edAdj; 
+  if(w<30&&w>0) w=30;
+
+  let bmi=0,bmiTxt='—',bmiCls='rb-none';
+  if(h>0&&w>0){
+    bmi=w/Math.pow(h/100,2);
+    if(bmi<18.5){bmiTxt='Underweight';bmiCls='rb-high';}
+    else if(bmi<25){bmiTxt='Normal';bmiCls='rb-low';}
+    else if(bmi<30){bmiTxt='Overweight';bmiCls='rb-mod';}
+    else{bmiTxt='Obese';bmiCls='rb-high';}
+  }
+
+  let nutr='Enter measurements to calculate', nutrIcon='⬜';
+  if(h>0 && w>0) {
+    if(bmi<18.5||muac<23){nutr='HIGH NUTRITIONAL RISK';nutrIcon='🔴';}
+    else if(bmi<21||muac<25){nutr='MODERATE NUTRITIONAL RISK';nutrIcon='🟡';}
+    else{nutr='LOW NUTRITIONAL RISK';nutrIcon='🟢';}
+  } else if(muac>0) {
+    if(muac<23){nutr='HIGH NUTRITIONAL RISK (MUAC)';nutrIcon='🔴';}
+    else if(muac<25){nutr='MODERATE NUTRITIONAL RISK (MUAC)';nutrIcon='🟡';}
+    else{nutr='LOW NUTRITIONAL RISK (MUAC)';nutrIcon='🟢';}
+  }
+
+  const in_=h/2.54, ft=Math.floor(in_/12), inc=Math.round(in_%12);
+
+  set('sHeightCm',h>0?h.toFixed(1):'—');
+  set('sHeightFt',h>0?ft+' ft '+inc+' in':'—');
+  set('sWeightKg',w>0?w.toFixed(1):'—');
+  set('sBmi',bmi>0?bmi.toFixed(1):'—');
+  set('sNutrRisk',nutr);
+  set('sNutrIcon',nutrIcon);
+  set('sEdemaCorr','Oedema adj: '+(edAdj!==0?edAdj+' kg':'±0 kg'));
+
+  const bmiEl=document.getElementById('sBmiStatus');
+  bmiEl.textContent=bmiTxt; bmiEl.className='risk-badge '+bmiCls;
+
+  const marker=document.getElementById('sBmiMarker');
+  if(bmi>0){
+    marker.style.display='block';
+    const pct=Math.min(Math.max((bmi-10)/30*100,0),100);
+    marker.style.left=pct+'%';
+  } else marker.style.display='none';
+}
+
+function calcLK(){
+  const edAdj=parseFloat(document.getElementById('lEdema').value)||0;
+  let abw=0,nutr='Enter measurements to calculate',nutrIcon='⬜',modelShort='—',modelFull='—';
+
+  if(lSex==='male'){
+    const mac=parseFloat(document.getElementById('lMac').value)||0;
+    const ac=parseFloat(document.getElementById('lAc').value)||0;
+    const tl=parseFloat(document.getElementById('lTl').value)||0;
+    const tst=parseFloat(document.getElementById('lTst').value)||0;
+    if(mac>0&&ac>0&&tl>0&&tst>0) abw=-38.21+1.29*mac+0.49*ac+0.565*tl+0.391*tst;
+    modelShort='Male';
+    modelFull='Male model · R²=0.824 · Herath et al. 2023';
+    if(abw>0){nutrIcon=mac<23?'🔴':mac<25?'🟡':'🟢';nutr=mac<23?'HIGH NUTRITIONAL RISK':mac<25?'MODERATE NUTRITIONAL RISK':'LOW NUTRITIONAL RISK';}
+  } else {
+    const mac=parseFloat(document.getElementById('lMacF').value)||0;
+    const nc=parseFloat(document.getElementById('lNc').value)||0;
+    const cc=parseFloat(document.getElementById('lCc').value)||0;
+    if(mac>0&&nc>0&&cc>0) abw=-20.128+0.968*mac+0.273*nc+0.407*cc;
+    modelShort='Female';
+    modelFull='Female model · R²=0.747 · Herath et al. 2023';
+    if(abw>0){nutrIcon=mac<23?'🔴':mac<25?'🟡':'🟢';nutr=mac<23?'HIGH NUTRITIONAL RISK':mac<25?'MODERATE NUTRITIONAL RISK':'LOW NUTRITIONAL RISK';}
+  }
+  if(abw<20&&abw>0)abw=20;
+  const adj=abw>0?abw+edAdj:0;
+
+  set('lAbw',abw>0?abw.toFixed(1):'—');
+  set('lAbwAdj',adj>0?adj.toFixed(1):'—');
+  set('lNutrRisk',nutr);
+  set('lNutrIcon',nutrIcon);
+  set('lModelShort',modelShort);
+  set('lModel',modelFull);
+}
+
+function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
+function downloadPDF(which){
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
+  const now=new Date().toLocaleString();
+  pdf.setFontSize(20);pdf.setTextColor(11,31,107);
+  pdf.text('THE NURSE (PVT) LTD',20,22);
+  pdf.setFontSize(11);pdf.setTextColor(100,116,139);
+  pdf.text('Advanced Anthropometric Clinical Report',20,31);
+  pdf.text('Generated: '+now,20,38);
+  pdf.setDrawColor(220,220,220);pdf.line(20,42,190,42);
+  
+  let currentY = 52;
+
+  if(which==='std'){
+    pdf.setFontSize(13);pdf.setTextColor(11,31,107);
+    pdf.text('Mode: Standard / General',20,currentY); currentY += 10;
+    pdf.setFontSize(11);pdf.setTextColor(50,50,50);
+    pdf.text('Sex: '+(sSex==='male'?'Male':'Female'),20,currentY); currentY += 8;
+    pdf.text('Age: '+(document.getElementById('sAge').value||'Not entered')+' years',20,currentY); currentY += 6;
+    pdf.line(20,currentY,190,currentY); currentY += 9;
+    pdf.setFontSize(12);pdf.setTextColor(11,31,107);pdf.text('Clinical Results',20,currentY); currentY += 10;
+    pdf.setFontSize(11);pdf.setTextColor(50,50,50);
+    pdf.text('Estimated Height: '+document.getElementById('sHeightCm').textContent+' cm ('+document.getElementById('sHeightFt').textContent+')',20,currentY); currentY += 9;
+    pdf.text('Estimated Weight: '+document.getElementById('sWeightKg').textContent+' kg',20,currentY); currentY += 9;
+    pdf.text('Estimated BMI: '+document.getElementById('sBmi').textContent+' kg/m² ('+document.getElementById('sBmiStatus').textContent+')',20,currentY); currentY += 9;
+    pdf.text('Nutrition Risk: '+document.getElementById('sNutrRisk').textContent,20,currentY); currentY += 6;
+    pdf.line(20,currentY,190,currentY); currentY += 8;
+    pdf.setFontSize(10);pdf.setTextColor(100,116,139);
+    pdf.text('References: BAPEN MUST · Powell-Tuck & Hennessy · Devine · WHO MUAC',20,currentY);
+  } else {
+    pdf.setFontSize(13);pdf.setTextColor(5,46,22);
+    pdf.text('Mode: Sri Lankan / Asian (Herath et al. 2023)',20,currentY); currentY += 10;
+    pdf.setFontSize(11);pdf.setTextColor(50,50,50);
+    pdf.text('Sex: '+(lSex==='male'?'Male':'Female'),20,currentY); currentY += 6;
+    pdf.line(20,currentY,190,currentY); currentY += 9;
+    pdf.setFontSize(12);pdf.setTextColor(5,46,22);pdf.text('Clinical Results',20,currentY); currentY += 10;
+    pdf.setFontSize(11);pdf.setTextColor(50,50,50);
+    pdf.text('Estimated ABW: '+document.getElementById('lAbw').textContent+' kg',20,currentY); currentY += 9;
+    pdf.text('Adjusted ABW (with oedema): '+document.getElementById('lAbwAdj').textContent+' kg',20,currentY); currentY += 9;
+    pdf.text('Nutrition Risk: '+document.getElementById('lNutrRisk').textContent,20,currentY); currentY += 6;
+    pdf.line(20,currentY,190,currentY); currentY += 9;
+    pdf.setFontSize(10);pdf.setTextColor(100,116,139);
+    pdf.text('Male: ABW = -38.21 + 1.29*MAC + 0.49*AC + 0.565*TL + 0.391*TST',20,currentY); currentY += 9;
+    pdf.text('Female: ABW = -20.128 + 0.968*MAC + 0.273*NC + 0.407*CC',20,currentY); currentY += 9;
+    pdf.setFontSize(9);
+    pdf.text('Herath HMMTB et al. PLoS One. 2023;18(9):e0290895. PMID:37656692',20,currentY);
+  }
+  
+  pdf.setFontSize(9);pdf.setTextColor(150,150,150);
+  pdf.text('Estimation tool only. Clinical validation by a qualified practitioner is required.',20,285);
+  pdf.save('TheNurse_Report_'+which+'_'+Date.now()+'.pdf');
+}
+
+calcStd(); calcLK();
+</script>
+</body>
+</html>
